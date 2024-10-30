@@ -1,0 +1,3 @@
+flask
+transformers
+torch  # Optional if CPU version of transformers requires it
