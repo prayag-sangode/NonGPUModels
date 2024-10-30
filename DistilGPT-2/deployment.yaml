@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: distilgpt2-app
+  labels:
+    app: distilgpt2-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: distilgpt2-app
+  template:
+    metadata:
+      labels:
+        app: distilgpt2-app
+    spec:
+      nodeSelector:
+        cce.cloud.com/cce-nodepool: microservice-cpu-small-pool  
+      containers:
+      - name: distilgpt2-app-container
+        image: prayags/distilgpt2-app:v1
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1"
+            nvidia.com/gpu: 1
+          limits:
+            memory: "4Gi"
+            cpu: "2"
+            nvidia.com/gpu: 1
+        env:
+        - name: MODEL_NAME
+          value: "distilgpt2"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: distilgpt2
+spec:
+  selector:
+    app: distilgpt2-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+  type: ClusterIP
